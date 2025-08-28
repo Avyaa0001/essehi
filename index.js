@@ -8,7 +8,8 @@ async function cat(filePaths, outputFilePath) {
         try {
             const stat = await fs.stat(p);
             if (stat.isFile()) {
-                const content = await fs.readFile(p, "utf-8");
+                let content = await fs.readFile(p, "utf-8");
+                // Handle empty source file → represent as empty string (so it adds a blank line)
                 results.push(content);
             } else if (stat.isDirectory()) {
                 results.push("Is a directory");
@@ -20,9 +21,11 @@ async function cat(filePaths, outputFilePath) {
         }
     }
 
+    // ensure parent directory exists
     const dir = path.dirname(outputFilePath);
     await fs.mkdir(dir, { recursive: true });
 
+    // write joined results (empty array → empty file, empty string → empty line)
     await fs.writeFile(outputFilePath, results.join("\n"), "utf-8");
 }
 
